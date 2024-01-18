@@ -10,8 +10,13 @@ const testimonialSchema = new Schema(
     feedbackMessage: {
       type: String,
       required: [true, 'Review is required.']
+    },
+    company: {
+      type: Schema.Types.ObjectId, ref: 'Company' 
     }
-  },
+
+    }
+  ,
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`    
     timestamps: true

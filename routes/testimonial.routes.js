@@ -36,7 +36,18 @@ router.get("/word-frequency", (req, res) => {
     res.status(200).json({message: "Frequency analysis is done"});
 })
 
-router.post("/review", async (req, res, next) => {
+// router.get("/testimonials/:company", async (req, res, next) => {
+//   try {
+//   const id = req.params.company;
+//   const testimonials = (await Testimonial.find()).filter(item => item.company === id);
+//   } catch(err) {
+//     console.log(err)
+//     next(err)
+//   }
+
+// })
+
+router.post("/testimoial", async (req, res, next) => {
 
   try {
   const { rating, feedbackMessage } = req.body;
@@ -46,6 +57,7 @@ router.post("/review", async (req, res, next) => {
   res.json("All good in here");
   } catch(err) {
     console.log(err)
+    next(err)
   }
 });
 
