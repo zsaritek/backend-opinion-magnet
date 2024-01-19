@@ -1,6 +1,6 @@
 const router = require("express").Router();
-const Testimonial = require("../models/Testimonial.model");
-
+const Feedback = require("../models/Feedback.model");
+const FeedbackAuth = require("../models/FeedbackAuth.model");
 
 const natural = require('natural');
 const tokenizer = new natural.WordTokenizer();
@@ -47,14 +47,29 @@ router.get("/word-frequency", (req, res) => {
 
 // })
 
-router.post("/testimoial", async (req, res, next) => {
+// date and company id is also send
+router.post("/feedback", async (req, res, next) => {
 
   try {
-  const { rating, feedbackMessage } = req.body;
+  const { rating, feedbackMessage, date } = req.body;
+  const access_token = req.headers.access_token;
+  
+  if (!access_token) {
+    return res.status(401).json({ error: 'Access token is missing.' });
+  }
 
-  await Testimonial.create({rating: rating, feedbackMessage: feedbackMessage})
-
-  res.json("All good in here");
+  // Check if access token matches with a company_id
+  // For testing create FeedbackAuth Document in database: Access Token: access, company_id: 123456
+  
+  const auths = await FeedbackAuth.find();
+  const authDocument = await FeedbackAuth.findOne({ access_token: access_token });
+  if(authDocument) {
+    const companyID = authDocument.company_id;
+    await Feedback.create({rating: rating, feedbackMessage: feedbackMessage, date: date, company_id: companyID})
+    res.json("All good in here");
+  } else {
+    return res.status(401).json({error: "Invalid access token"})
+  }  
   } catch(err) {
     console.log(err)
     next(err)

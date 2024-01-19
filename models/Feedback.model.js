@@ -1,7 +1,7 @@
 const { Schema, model } = require("mongoose");
 
 // TODO: Please make sure you edit the User model to whatever makes sense in this case
-const testimonialSchema = new Schema(
+const feedbackSchema = new Schema(
   {
     rating: {
       type: Number,
@@ -11,8 +11,11 @@ const testimonialSchema = new Schema(
       type: String,
       required: [true, 'Review is required.']
     },
-    company: {
-      type: Schema.Types.ObjectId, ref: 'Company' 
+    date:{
+      type: Date
+    },
+    company_id: {
+      type: Number 
     }
 
     }
@@ -23,6 +26,6 @@ const testimonialSchema = new Schema(
   }
 );
 
-const Testimonial = model("Testimonial", testimonialSchema);
+const Feedback = model("Feedback", feedbackSchema);
 
-module.exports = Testimonial;
+module.exports = Feedback;
