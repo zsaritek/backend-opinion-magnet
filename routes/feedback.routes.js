@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const Feedback = require("../models/Feedback.model");
-const FeedbackAuth = require("../models/FeedbackAuth.model");
+const Company = require("../models/Company.model");
 
 const natural = require('natural');
 const tokenizer = new natural.WordTokenizer();
@@ -30,10 +30,10 @@ function analyzeWordFrequency(text) {
 }
 
 router.get("/word-frequency", (req, res) => {
-    const textToAnalyze = "This is an example sentence. This sentence is just for demonstration purposes.";
-    //console.log(stopWords)
-    analyzeWordFrequency(textToAnalyze);
-    res.status(200).json({message: "Frequency analysis is done"});
+  const textToAnalyze = "This is an example sentence. This sentence is just for demonstration purposes.";
+  //console.log(stopWords)
+  analyzeWordFrequency(textToAnalyze);
+  res.status(200).json({ message: "Frequency analysis is done" });
 })
 
 // router.get("/testimonials/:company", async (req, res, next) => {
@@ -47,32 +47,31 @@ router.get("/word-frequency", (req, res) => {
 
 // })
 
-// date and company id is also send
-router.post("/feedback", async (req, res, next) => {
-
+router.post("/feedback", async (req, res) => {
   try {
-  const { rating, feedbackMessage, date } = req.body;
-  const access_token = req.headers.access_token;
-  
-  if (!access_token) {
-    return res.status(401).json({ error: 'Access token is missing.' });
-  }
+    const { rating, feedback, accessToken, companyId } = req.body;
 
-  // Check if access token matches with a company_id
-  // For testing create FeedbackAuth Document in database: Access Token: access, company_id: 123456
-  
-  const auths = await FeedbackAuth.find();
-  const authDocument = await FeedbackAuth.findOne({ access_token: access_token });
-  if(authDocument) {
-    const companyID = authDocument.company_id;
-    await Feedback.create({rating: rating, feedbackMessage: feedbackMessage, date: date, company_id: companyID})
-    res.json("All good in here");
-  } else {
-    return res.status(401).json({error: "Invalid access token"})
-  }  
-  } catch(err) {
+    if (!accessToken) {
+      return res.status(401).json({ error: 'Access token is missing.' });
+    }
+
+    // Check if access token matches with a company_id
+    // For testing create company Document in database: Access Token: access, company_id: 123456
+    const companyDocument = await Company.findOne({
+      _id: companyId,
+      accessToken: accessToken
+    });
+
+
+    if (companyDocument) {
+      await Feedback.create({ rating: rating, feedback: feedback, company_id: companyId })
+      res.json({ message: "Tango is Starting" });
+    } else {
+      return res.status(401).json({ error: "Invalid access token or company Id" })
+    }
+  } catch (err) {
     console.log(err)
-    next(err)
+    return res.status(500).json({ error: "Service Error" })
   }
 });
 

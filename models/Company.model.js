@@ -7,11 +7,11 @@ const companySchema = new Schema(
       type: String,
       required: [true, 'Name is required.']
     },
-    token: {
+    accessToken: {
       type: String,
-      required: [true, 'Token is required.']
+      required: [true, 'Access token is required.']
     }
-    }
+  }
   ,
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`    

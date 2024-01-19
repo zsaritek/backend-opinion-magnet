@@ -7,18 +7,15 @@ const feedbackSchema = new Schema(
       type: Number,
       required: [true, 'Rating is required.']
     },
-    feedbackMessage: {
+    feedback: {
       type: String,
       required: [true, 'Review is required.']
     },
-    date:{
-      type: Date
-    },
-    company_id: {
-      type: Number 
+    companyId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Company'
     }
-
-    }
+  }
   ,
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`    
