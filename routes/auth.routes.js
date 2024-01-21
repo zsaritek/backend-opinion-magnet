@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
 const User = require("../models/User.model");
 const Company = require("../models/Company.model");
+const seedDatabase = require("../data/seedDatabase");
 
 const router = express.Router();
  
@@ -46,6 +47,13 @@ router.post('/signup', async (req, res, next) => {
 
     // create company first to add the company ID to the user profile
     const newCompany = await Company.create({name: company, accessToken: "randomTestToken"});
+
+    // here I am seeding the database with the new company
+
+    //seeding database with feedbacks associated with the new company and new admin
+    
+    await seedDatabase(newCompany._id);
+
     // If the email is unique, proceed to hash the password
     const salt = bcrypt.genSaltSync(saltRounds);
     const hashedPassword = bcrypt.hashSync(password, salt);
