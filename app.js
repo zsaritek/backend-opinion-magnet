@@ -21,6 +21,9 @@ app.use("/api", indexRoutes);
 const feedbackRoutes = require("./routes/feedback.routes");
 app.use("/api", feedbackRoutes);
 
+const analysisRoutes = require("./routes/analysis.routes");
+app.use("/api", analysisRoutes);
+
 const authRoutes = require("./routes/auth.routes");
 app.use("/api/auth", authRoutes);
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
