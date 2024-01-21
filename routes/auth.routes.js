@@ -4,6 +4,7 @@ const express = require("express");
 const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
 const User = require("../models/User.model");
+const Company = require("../models/Company.model");
 
 const router = express.Router();
  
@@ -11,9 +12,11 @@ const router = express.Router();
 const saltRounds = 10;
 
 // POST /auth/signup  - Creates a new user in the database
-router.post('/signup', (req, res, next) => {
-  const { email, password, name } = req.body;
+router.post('/signup', async (req, res, next) => {
+  
  
+  try {
+  const { email, password, name, company } = req.body;
   // Check if the email or password or name is provided as an empty string 
   if (email === '' || password === '' || name === '') {
     res.status(400).json({ message: "Provide email, password and name" });
@@ -36,37 +39,34 @@ router.post('/signup', (req, res, next) => {
  
  
   // Check the users collection if a user with the same email already exists
-  User.findOne({ email })
-    .then((foundUser) => {
-      // If the user with the same email already exists, send an error response
-      if (foundUser) {
-        res.status(400).json({ message: "User already exists." });
-        return;
-      }
- 
-      // If the email is unique, proceed to hash the password
-      const salt = bcrypt.genSaltSync(saltRounds);
-      const hashedPassword = bcrypt.hashSync(password, salt);
- 
-      // Create a new user in the database
-      // We return a pending promise, which allows us to chain another `then` 
-      return User.create({ email, password: hashedPassword, name });
-    })
-    .then((createdUser) => {
-      // Deconstruct the newly created user object to omit the password
-      // We should never expose passwords publicly
-      const { email, name, _id } = createdUser;
-    
-      // Create a new object that doesn't expose the password
-      const user = { email, name, _id };
- 
-      // Send a json response containing the user object
-      res.status(201).json({ user: user });
-    })
-    .catch(err => {
-      console.log(err);
-      res.status(500).json({ message: "Internal Server Error" })
-    });
+  const foundUser = await User.findOne({ email });
+  if (foundUser) {
+    return res.status(400).json({ message: "User already exists." });
+  }
+
+    // create company first to add the company ID to the user profile
+    const newCompany = await Company.create({name: company, accessToken: "randomTestToken"});
+    // If the email is unique, proceed to hash the password
+    const salt = bcrypt.genSaltSync(saltRounds);
+    const hashedPassword = bcrypt.hashSync(password, salt);
+      
+      
+    // Create a new user in the database
+    const createdUser = await User.create({ email, password: hashedPassword, name, company: newCompany._id });
+
+    // Deconstruct the newly created user object to omit the password
+    // We should never expose passwords publicly
+    const { _id } = createdUser;
+  
+    // Create a new object that doesn't expose the password
+    const user = { email, name, _id };
+
+    // Send a json response containing the user object
+    res.status(201).json({ user: user });
+  } catch(err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal Server Error" })
+  }
 });
  
 
