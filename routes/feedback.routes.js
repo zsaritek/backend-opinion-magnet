@@ -84,9 +84,7 @@ router.get("/feedback", isAuthenticated, async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "Not Found" })
     }
-    console.log(user.company._id)
     const feedback = await Feedback.find({ company: user.company }).populate('company');
-    console.log(feedback);
     return res.status(200).json(feedback)
   } catch (error) {
     return res.status(500).json({ message: "Internal Server Error" })
