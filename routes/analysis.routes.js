@@ -2,6 +2,7 @@ const router = require("express").Router();
 const Feedback = require("../models/Feedback.model");
 const Company = require("../models/Company.model");
 const User = require("../models/User.model");
+const { isAuthenticated } = require("../middleware/jwt.middleware");
 
 const natural = require('natural');
 const tokenizer = new natural.WordTokenizer();
@@ -31,15 +32,14 @@ function analyzeWordFrequency(text) {
 }
 
 
-router.get("/average/:id", async (req, res, next) => {
+router.get("/average", isAuthenticated, async (req, res, next) => {
     try {
-        const userId = req.params.id;
-
-        const userData = await User.findById(userId);
+        const { _id } = req.payload;
+        const userData = await User.findOne({ _id })
         feedbackData = await Feedback.find();
         const filteredData = feedbackData.filter(feedback => {
 
-            return feedback.companyId.equals(userData.company);
+            return feedback.company.equals(userData.company);
         });
         const averageRating = filteredData.length > 0 ? filteredData.reduce((acc, curr) => {
             return acc + curr.rating;
