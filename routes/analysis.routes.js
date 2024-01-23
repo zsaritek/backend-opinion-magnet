@@ -26,8 +26,7 @@ function analyzeWordFrequency(text) {
     }
   });
 
-  // Display the word frequency results
-  console.log('Word Frequency Analysis:', frequency);
+  return frequency
 
 }
 
@@ -49,6 +48,33 @@ router.get("/average", isAuthenticated, async (req, res, next) => {
         console.log(error)
     }
 
-})
+});
+
+router.get("/keywords", isAuthenticated, async (req, res, next) => {
+  try {
+      const { _id } = req.payload;
+      const userData = await User.findOne({ _id })
+      feedbackData = await Feedback.find();
+      const filteredData = feedbackData.filter(feedback => {
+
+          return feedback.company.equals(userData.company);
+      });
+      let text = "";
+      filteredData.forEach(data => {
+        text+= data.feedback;
+      });
+      const words = analyzeWordFrequency(text);
+      const myArray = Object.entries(words);
+      console.log("entries", myArray)
+      myArray.sort((a, b) => b[1] - a[1]);
+      const popularWords = Object.fromEntries(myArray);
+
+      console.log(popularWords);
+      res.status(200).json({"popularWords": popularWords})
+  } catch (error) {
+      console.log(error)
+  }
+
+});
 
 module.exports = router;
