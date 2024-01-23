@@ -1,6 +1,9 @@
 const router = require("express").Router();
 const Feedback = require("../models/Feedback.model");
 const Company = require("../models/Company.model");
+const User = require("../models/User.model");
+
+const { isAuthenticated } = require("../middleware/jwt.middleware");
 
 const natural = require('natural');
 const tokenizer = new natural.WordTokenizer();
@@ -64,15 +67,30 @@ router.post("/feedback", async (req, res) => {
 
 
     if (companyDocument) {
-      await Feedback.create({ rating: rating, feedback: feedback, company_id: companyId })
+      await Feedback.create({ rating: rating, feedback: feedback, company: companyId })
       res.json({ message: "Tango is Starting" });
     } else {
       return res.status(401).json({ error: "Invalid access token or company Id" })
     }
   } catch (err) {
-    console.log(err)
     return res.status(500).json({ error: "Service Error" })
   }
 });
+
+router.get("/feedback", isAuthenticated, async (req, res) => {
+  try {
+    const { _id } = req.payload;
+    const user = await User.findOne({ _id });
+    if (!user) {
+      return res.status(404).json({ message: "Not Found" })
+    }
+    console.log(user.company._id)
+    const feedback = await Feedback.find({ company: user.company }).populate('company');
+    console.log(feedback);
+    return res.status(200).json(feedback)
+  } catch (error) {
+    return res.status(500).json({ message: "Internal Server Error" })
+  }
+})
 
 module.exports = router;

@@ -6,7 +6,6 @@ const userSchema = new Schema(
     name: {
       type: String,
       required: [true, "Username is required"],
-      unique: true,
       trim: true
     },
     email: {
@@ -21,7 +20,7 @@ const userSchema = new Schema(
       required: [true, 'Password is required.']
     },
     company: {
-      type: Schema.Types.ObjectId, ref: 'Company' 
+      type: Schema.Types.ObjectId, ref: 'Company'
     }
   },
   {

@@ -11,7 +11,7 @@ const feedbackSchema = new Schema(
       type: String,
       required: [true, 'Review is required.']
     },
-    companyId: {
+    company: {
       type: Schema.Types.ObjectId,
       ref: 'Company'
     }
