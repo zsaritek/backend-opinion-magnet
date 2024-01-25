@@ -43,12 +43,72 @@ router.get("/average", isAuthenticated, async (req, res, next) => {
         const averageRating = filteredData.length > 0 ? filteredData.reduce((acc, curr) => {
             return acc + curr.rating;
         }, 0)/filteredData.length : 0;
-        res.status(200).json({"averageRating": averageRating})
+        res.status(200).json({"averageRating": (averageRating.toFixed(2))})
     } catch (error) {
         console.log(error)
     }
 
 });
+
+router.get("/ratings", isAuthenticated, async (req, res, next) => {
+  try {
+      const { _id } = req.payload;
+      const userData = await User.findOne({ _id })
+      feedbackData = await Feedback.find();
+      const filteredData = feedbackData.filter(feedback => {
+
+          return feedback.company.equals(userData.company);
+      });
+
+      
+
+      // prepare data for histogramm
+
+      // Extract ratings from feedback data
+      const allRatings = filteredData.map((feedback) => feedback.rating);
+
+      // Count occurrences of each rating
+      const ratingCounts = allRatings.reduce((acc, rating) => {
+        acc[rating] = (acc[rating] || 0) + 1;
+        return acc;
+      }, {});
+
+      // Transform counts into format suitable for the histogram chart
+      const histogramChartData = Object.entries(ratingCounts).map(([rating, count]) => ({
+        name: `Rating ${rating}`,
+        data: count,
+      }));
+      console.log(histogramChartData)
+
+      // prepare data for timeline
+
+      const data = filteredData.map(element => {
+        return (
+          {[new Date(element.createdAt)]: element.rating}
+        )
+      })
+      const dataObject = filteredData.reduce((acc, obj) => {
+        // Extract the date and value from each object
+        const { createdAt, rating } = obj;
+        
+        // Add the date and value to the accumulator object
+        acc[createdAt] = rating;
+      
+        // Return the updated accumulator for the next iteration
+        return acc;
+      }, {});
+      //console.log(dataObject)
+
+      //console.log(data)
+      res.status(200).json({"ratings": dataObject, "histogram": {histogramChartData}})
+  } catch (error) {
+      console.log(error)
+  }
+
+});
+
+
+
 
 router.get("/keywords", isAuthenticated, async (req, res, next) => {
   try {
@@ -67,7 +127,7 @@ router.get("/keywords", isAuthenticated, async (req, res, next) => {
       const myArray = Object.entries(words);
       //console.log("entries", myArray)
       myArray.sort((a, b) => b[1] - a[1]);
-      const popularWords = Object.fromEntries(myArray);
+      const popularWords = Object.fromEntries(myArray.slice(0,10));
 
       //console.log(popularWords);
       res.status(200).json({"popularWords": popularWords})
