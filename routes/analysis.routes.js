@@ -222,4 +222,34 @@ router.get("/clustering", isAuthenticated, async (req, res, next) => {
   }
 });
 
+
+
+router.get("/test-ratings", async (req, res, next) => {
+  try {
+      
+      feedbackData = await Feedback.find();
+     
+      // prepare data for histogramm
+
+      // Extract ratings from feedback data
+      const allRatings = feedbackData.map((feedback) => feedback.rating);
+
+      // Count occurrences of each rating
+      const ratingCounts = allRatings.reduce((acc, rating) => {
+        acc[rating] = (acc[rating] || 0) + 1;
+        return acc;
+      }, {});
+
+      // Transform counts into format suitable for the histogram chart
+      const histogramChartData = Object.entries(ratingCounts).map(([rating, count]) => ({
+        label: `${rating} stars`,
+        value: count,
+      }));
+      console.log(histogramChartData)
+      res.status(200).json({"ratings": histogramChartData})
+    } catch(err) {
+      console.log(err)
+    }
+  })
+
 module.exports = router;
