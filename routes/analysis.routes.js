@@ -73,7 +73,7 @@ router.get("/ratings", isAuthenticated, async (req, res, next) => {
         return acc;
       }, {});
 
-      console.log(ratingCounts)
+      //console.log(ratingCounts)
 
       // prepare data for timeline
 
@@ -89,8 +89,62 @@ router.get("/ratings", isAuthenticated, async (req, res, next) => {
       }, {});
       //console.log(dataObject)
 
-      //console.log(data)
-      res.status(200).json({"ratings": dataObject, "histogram": ratingCounts})
+      //smooting time data
+      // Step 1: Convert date strings to Date objects
+      const parsedData = Object.entries(dataObject).map(([dateString, rating]) => ({
+        date: new Date(dateString),
+        rating
+      }));
+
+      // Step 2: Sort the data based on the date
+      parsedData.sort((a, b) => a.date - b.date);
+      const parsedArray = parsedData.reduce((acc, curr) => {
+        acc.push(curr["rating"])
+        return acc;
+      }, [])
+      console.log("parsedArray", parsedArray)
+
+      function avg (v) {
+        return v.reduce((a,b) => a+b, 0)/v.length;
+      }
+      
+      function smoothOut (vector, variance) {
+        var t_avg = avg(vector)*variance;
+        var ret = Array(vector.length);
+        for (var i = 0; i < vector.length; i++) {
+          (function () {
+            var prev = i>0 ? ret[i-1] : vector[i];
+            var next = i<vector.length ? vector[i] : vector[i-1];
+            ret[i] = avg([t_avg, avg([prev, vector[i], next])]);
+          })();
+        }
+        return ret;
+      }
+    
+    
+    const smoothedValues = smoothOut(parsedArray, 0.6);
+    const timeData = parsedData.map((element, index) => {
+      return ({
+        date: element["date"],
+        rating: smoothedValues[index]
+      })
+    })
+
+    
+    // again some data transformation to fit the expected data input 
+
+    const timeObjectData = timeData.reduce((acc, obj) => {
+      // Extract the date and value from each object
+      const { date, rating } = obj;
+      
+      // Add the date and value to the accumulator object
+      acc[date] = rating;
+    
+      // Return the updated accumulator for the next iteration
+      return acc;
+    }, {});
+     
+      res.status(200).json({"timeData": timeObjectData, "histogram": ratingCounts})
   } catch (error) {
       console.log(error)
   }
