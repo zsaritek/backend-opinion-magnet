@@ -73,20 +73,10 @@ router.get("/ratings", isAuthenticated, async (req, res, next) => {
         return acc;
       }, {});
 
-      // Transform counts into format suitable for the histogram chart
-      const histogramChartData = Object.entries(ratingCounts).map(([rating, count]) => ({
-        name: `Rating ${rating}`,
-        data: count,
-      }));
-      console.log(histogramChartData)
+      console.log(ratingCounts)
 
       // prepare data for timeline
 
-      const data = filteredData.map(element => {
-        return (
-          {[new Date(element.createdAt)]: element.rating}
-        )
-      })
       const dataObject = filteredData.reduce((acc, obj) => {
         // Extract the date and value from each object
         const { createdAt, rating } = obj;
@@ -100,7 +90,7 @@ router.get("/ratings", isAuthenticated, async (req, res, next) => {
       //console.log(dataObject)
 
       //console.log(data)
-      res.status(200).json({"ratings": dataObject, "histogram": {histogramChartData}})
+      res.status(200).json({"ratings": dataObject, "histogram": ratingCounts})
   } catch (error) {
       console.log(error)
   }
@@ -200,7 +190,7 @@ router.get("/clustering", isAuthenticated, async (req, res, next) => {
     
 
     // // Log the cluster assignments
-    console.log(ans.clusters);
+    //console.log(ans.clusters);
     const myClusters = ans.clusters;
     let cl1 = [];
     let cl2 = [];
@@ -215,8 +205,45 @@ router.get("/clustering", isAuthenticated, async (req, res, next) => {
       }
     })
 
+    // most frequent words analysis for each cluster
+    // cluster 1
+    let textcl1 = "";
+    cl1.forEach(data => {
+      textcl1+= data.feedback;
+    });
+    const wordscl1 = analyzeWordFrequency(textcl1);
+    const myArraycl1 = Object.entries(wordscl1);
+    //console.log("entries", myArray)
+    myArraycl1.sort((a, b) => b[1] - a[1]);
+    const popularWordscl1 = Object.fromEntries(myArraycl1.slice(0,10));
+    console.log(popularWordscl1);
+
+    // cluster 2
+    let textcl2 = "";
+    cl2.forEach(data => {
+      textcl2+= data.feedback;
+    });
+    const wordscl2 = analyzeWordFrequency(textcl2);
+    const myArraycl2 = Object.entries(wordscl2);
+    //console.log("entries", myArray)
+    myArraycl2.sort((a, b) => b[1] - a[1]);
+    const popularWordscl2 = Object.fromEntries(myArraycl2.slice(0,10));
+    console.log(popularWordscl2);
+
+    // cluster 3
+    let textcl3 = "";
+    cl3.forEach(data => {
+      textcl3+= data.feedback;
+    });
+    const wordscl3 = analyzeWordFrequency(textcl3);
+    const myArraycl3 = Object.entries(wordscl3);
+    //console.log("entries", myArray)
+    myArraycl2.sort((a, b) => b[1] - a[1]);
+    const popularWordscl3 = Object.fromEntries(myArraycl3.slice(0,10));
+    console.log(popularWordscl3);
+
     
-  res.status(200).json({"clusters": [cl1, cl2, cl3]})
+  res.status(200).json({"clusters": [cl1, cl2, cl3], "clusterKeywords": [popularWordscl1, popularWordscl2, popularWordscl3]})
   } catch (error) {
     console.log(error);
   }
@@ -224,32 +251,32 @@ router.get("/clustering", isAuthenticated, async (req, res, next) => {
 
 
 
-router.get("/test-ratings", async (req, res, next) => {
-  try {
+// router.get("/rating-distribution", async (req, res, next) => {
+//   try {
       
-      feedbackData = await Feedback.find();
+//       feedbackData = await Feedback.find();
      
-      // prepare data for histogramm
+//       // prepare data for histogramm
 
-      // Extract ratings from feedback data
-      const allRatings = feedbackData.map((feedback) => feedback.rating);
+//       // Extract ratings from feedback data
+//       const allRatings = feedbackData.map((feedback) => feedback.rating);
 
-      // Count occurrences of each rating
-      const ratingCounts = allRatings.reduce((acc, rating) => {
-        acc[rating] = (acc[rating] || 0) + 1;
-        return acc;
-      }, {});
+//       // Count occurrences of each rating
+//       const ratingCounts = allRatings.reduce((acc, rating) => {
+//         acc[rating] = (acc[rating] || 0) + 1;
+//         return acc;
+//       }, {});
 
-      // Transform counts into format suitable for the histogram chart
-      const histogramChartData = Object.entries(ratingCounts).map(([rating, count]) => ({
-        label: `${rating} stars`,
-        value: count,
-      }));
-      console.log(histogramChartData)
-      res.status(200).json({"ratings": histogramChartData})
-    } catch(err) {
-      console.log(err)
-    }
-  })
+//       // Transform counts into format suitable for the histogram chart
+//       const histogramChartData = Object.entries(ratingCounts).map(([rating, count]) => ({
+//         label: `${rating} stars`,
+//         value: count,
+//       }));
+//       //console.log(histogramChartData)
+//       res.status(200).json({"ratings": histogramChartData})
+//     } catch(err) {
+//       console.log(err)
+//     }
+//   })
 
 module.exports = router;

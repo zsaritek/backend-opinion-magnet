@@ -25,10 +25,12 @@ const seedDatabase = async () => {
     const createdUser = await User.create({ email: "admin@acme.com", password: hashedPassword, name: "admin", company: company._id });
 
     const feedbackEntries = feedbackData.map(entry => {
+        const createdAt = new Date(Date.now() - Math.floor(Math.random() * 365 * 24 * 60 * 60 * 1000));
         return ({
             rating: entry.rating,
             feedback: entry.feedback,
-            company: company._id
+            company: company._id,
+            createdAt: createdAt
         })
     })
 
