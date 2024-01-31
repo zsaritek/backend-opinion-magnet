@@ -40,10 +40,36 @@ router.get("/average", isAuthenticated, async (req, res, next) => {
 
             return feedback.company.equals(userData.company);
         });
+        // average rating
         const averageRating = filteredData.length > 0 ? filteredData.reduce((acc, curr) => {
             return acc + curr.rating;
         }, 0)/filteredData.length : 0;
-        res.status(200).json({"averageRating": (averageRating.toFixed(2))})
+
+        // number of feedbacks
+        const numberFeedbacks = filteredData.length;
+
+        // average number of words per feedback
+        const averageWordNumber = filteredData.length > 0 ? filteredData.reduce((acc, curr) => {
+          return acc + curr.feedback.length;
+      }, 0)/filteredData.length : 0;
+        console.log(averageWordNumber)
+        // average number of feedbacks/ month
+        const monthNames = [
+          "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        ];
+       const feedbacksPerMonth = filteredData.reduce((acc, curr) => {
+          //console.log(curr.createdAt.getMonth() + 1)
+
+          acc[monthNames[curr.createdAt.getMonth()]]? acc[monthNames[curr.createdAt.getMonth()]] += 1 : acc[monthNames[curr.createdAt.getMonth()]] = 1
+
+
+          return acc
+      }, {});
+      console.log(feedbacksPerMonth)
+
+
+        res.status(200).json({"averageRating": (averageRating.toFixed(2)), "numberFeedbacks": numberFeedbacks, "averageWordNumber": averageWordNumber.toFixed(2), "feedbacksPerMonth": feedbacksPerMonth})
     } catch (error) {
         console.log(error)
     }
@@ -102,7 +128,7 @@ router.get("/ratings", isAuthenticated, async (req, res, next) => {
         acc.push(curr["rating"])
         return acc;
       }, [])
-      console.log("parsedArray", parsedArray)
+      //console.log("parsedArray", parsedArray)
 
       function avg (v) {
         return v.reduce((a,b) => a+b, 0)/v.length;
@@ -270,7 +296,7 @@ router.get("/clustering", isAuthenticated, async (req, res, next) => {
     //console.log("entries", myArray)
     myArraycl1.sort((a, b) => b[1] - a[1]);
     const popularWordscl1 = Object.fromEntries(myArraycl1.slice(0,10));
-    console.log(popularWordscl1);
+    //console.log(popularWordscl1);
 
     // cluster 2
     let textcl2 = "";
@@ -282,7 +308,7 @@ router.get("/clustering", isAuthenticated, async (req, res, next) => {
     //console.log("entries", myArray)
     myArraycl2.sort((a, b) => b[1] - a[1]);
     const popularWordscl2 = Object.fromEntries(myArraycl2.slice(0,10));
-    console.log(popularWordscl2);
+    //console.log(popularWordscl2);
 
     // cluster 3
     let textcl3 = "";
@@ -294,7 +320,7 @@ router.get("/clustering", isAuthenticated, async (req, res, next) => {
     //console.log("entries", myArray)
     myArraycl2.sort((a, b) => b[1] - a[1]);
     const popularWordscl3 = Object.fromEntries(myArraycl3.slice(0,10));
-    console.log(popularWordscl3);
+    //console.log(popularWordscl3);
 
     
   res.status(200).json({"clusters": [cl1, cl2, cl3], "clusterKeywords": [popularWordscl1, popularWordscl2, popularWordscl3]})

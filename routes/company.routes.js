@@ -9,6 +9,7 @@ const crypto = require("crypto");
 router.patch("/company", isAuthenticated, async (req, res) => {
     try {
         const { _id } = req.payload;
+        console.log(_id)
         const user = await User.findOne({ _id }).populate('company');
         if (!user || !user.company) {
             return res.status(404).json({ message: "Not Found" })
