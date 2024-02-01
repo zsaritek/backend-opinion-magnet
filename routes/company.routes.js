@@ -35,5 +35,27 @@ router.get("/company", isAuthenticated, async (req, res) => {
     }
 });
 
+router.post("/meeting", isAuthenticated, async (req, res) => {
+    try {
+        const { _id } = req.payload;
+        const {meeting} = req.body;
+
+        const user = await User.findOneAndUpdate({_id}, {meeting: meeting})
+        res.status(200).json({message: "All good"})
+    } catch (error) {
+        console.log(error)
+    }
+
+});
+
+router.delete("/meeting", isAuthenticated, async (req, res) => {
+    try {
+        const { _id } = req.payload;
+        const user = await User.findOneAndUpdate({_id}, {$unset: {meeting: 1}})
+    } catch (error) {
+        console.log(error)
+    }
+})
+
 
 module.exports = router;

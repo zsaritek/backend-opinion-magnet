@@ -24,6 +24,9 @@ const userSchema = new Schema(
     },
     image: {
       type: String
+    },
+    meeting: {
+      type: String
     }
   },
   {
