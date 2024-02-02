@@ -25,4 +25,14 @@ router.post("/upload", isAuthenticated, uploader.single('image'), async (req, re
   }
 });
 
+router.get("/image" , isAuthenticated, async (req, res) => {
+  try {
+    const { _id } = req.payload;
+    const user = await User.findById({_id});
+    res.status(200).json({image: user.image})
+  } catch (error) {
+    console.log(error)
+  }
+})
+
 module.exports = router;
