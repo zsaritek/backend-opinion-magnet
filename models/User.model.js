@@ -24,7 +24,7 @@ const userSchema = new Schema(
     },
     image: {
       type: String,
-      default:"https://readymadeui.com/profile_2.webp"
+      default: "https://res.cloudinary.com/dexnyholt/image/upload/v1706911614/opinion_magnet/avatar_m1jdrw.png"
     },
     meeting: {
       type: String

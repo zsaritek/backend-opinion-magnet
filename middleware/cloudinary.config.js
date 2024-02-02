@@ -13,7 +13,7 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
     cloudinary,
     params: {
-        folder: 'cocktail_chronicles', // The name of the folder in cloudinary . You can name this whatever you want
+        folder: 'opinion_magnet', // The name of the folder in cloudinary . You can name this whatever you want
         format: (req, file) => {
             // Check the file type and set the format accordingly
             if (file.mimetype === 'image/png') {
