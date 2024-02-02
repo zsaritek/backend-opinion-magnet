@@ -35,6 +35,16 @@ router.get("/company", isAuthenticated, async (req, res) => {
     }
 });
 
+router.get("/meeting", isAuthenticated, async (req, res) => {
+    try {
+        const { _id } = req.payload;
+        const user = await User.findById({_id})
+        res.status(200).json({meeting: user.meeting})
+    } catch (error) {
+        console.log(error)
+    }
+})
+
 router.post("/meeting", isAuthenticated, async (req, res) => {
     try {
         const { _id } = req.payload;

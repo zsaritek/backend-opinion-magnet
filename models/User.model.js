@@ -23,7 +23,8 @@ const userSchema = new Schema(
       type: Schema.Types.ObjectId, ref: 'Company'
     },
     image: {
-      type: String
+      type: String,
+      default:"https://readymadeui.com/profile_2.webp"
     },
     meeting: {
       type: String
