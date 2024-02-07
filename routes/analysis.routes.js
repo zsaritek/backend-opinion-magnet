@@ -50,7 +50,7 @@ router.get("/average", isAuthenticated, async (req, res, next) => {
 
         // average number of words per feedback
         const averageWordNumber = filteredData.length > 0 ? filteredData.reduce((acc, curr) => {
-          return acc + curr.feedback.length;
+          return acc + curr.feedback.split(" ").length;
       }, 0)/filteredData.length : 0;
         console.log(averageWordNumber)
         // average number of feedbacks/ month
@@ -266,6 +266,13 @@ router.get("/clustering", isAuthenticated, async (req, res, next) => {
     // Assuming you want 3 clusters (you can adjust this)
     const ans = kmeans(tfidfDataMatrix, 3);
 
+    const centroids = ans.centroids;
+    
+
+    // Project each vector onto the XY plane
+    const projectedArray = centroids.map(vector => [vector[1], vector[3]]);
+    console.log(projectedArray)
+    //console.log(ans.centroids[0])
     // // Get the cluster assignments for each document
     
 
